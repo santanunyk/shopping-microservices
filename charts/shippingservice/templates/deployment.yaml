@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "shippingservice.fullname" . }}
+  labels:
+    app: {{ include "shippingservice.name" . }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ include "shippingservice.name" . }}
+  template:
+    metadata:
+      labels:
+        app: {{ include "shippingservice.name" . }}
+    spec:
+      serviceAccountName: {{ include "shippingservice.name" . }}
+      terminationGracePeriodSeconds: 5
+      securityContext:
+        fsGroup: 1000
+        runAsGroup: 1000
+        runAsNonRoot: true
+        runAsUser: 1000
+      containers:
+      - name: shippingservice
+        image: "{{ .Values.global.imageRegistry }}/{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        ports:
+        - name: grpc
+          containerPort: {{ .Values.service.port }}
+        env:
+        - name: PORT
+          value: "{{ .Values.service.port }}"
+        - name: DISABLE_PROFILER
+          value: "1"
+        readinessProbe:
+          grpc:
+            port: {{ .Values.service.port }}
+          periodSeconds: 5
+        livenessProbe:
+          grpc:
+            port: {{ .Values.service.port }}
+          periodSeconds: 5
+        resources:
+{{ toYaml .Values.resources | indent 10 }}
+

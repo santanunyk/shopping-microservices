@@ -1,0 +1,39 @@
+dependencies:
+- name: adservice
+  repository: file://charts/adservice
+  version: 1.0.0
+- name: cartservice
+  repository: file://charts/cartservice
+  version: 1.0.0
+- name: checkoutservice
+  repository: file://charts/checkoutservice
+  version: 1.0.0
+- name: currencyservice
+  repository: file://charts/currencyservice
+  version: 1.0.0
+- name: emailservice
+  repository: file://charts/emailservice
+  version: 1.0.0
+- name: frontend
+  repository: file://charts/frontend
+  version: 1.0.0
+- name: loadgenerator
+  repository: file://charts/loadgenerator
+  version: 1.0.0
+- name: paymentservice
+  repository: file://charts/paymentservice
+  version: 1.0.0
+- name: productcatalogservice
+  repository: file://charts/productcatalogservice
+  version: 1.0.0
+- name: recommendationservice
+  repository: file://charts/recommendationservice
+  version: 1.0.0
+- name: redis-cart
+  repository: file://charts/redis-cart
+  version: 1.0.0
+- name: shippingservice
+  repository: file://charts/shippingservice
+  version: 1.0.0
+digest: sha256:848f3158c1b2b0d391cd71ec5626d5318c706f2f04e489bf6581057acf607211
+generated: "2026-01-17T22:17:34.859859756+05:30"

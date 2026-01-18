@@ -1,0 +1,30 @@
+replicaCount: 1
+
+image:
+  repository: frontend
+  tag: v0.10.4
+  pullPolicy: IfNotPresent
+
+service:
+  type: LoadBalancer
+  port: 80
+  targetPort: 8080
+
+env:
+  productCatalog: "boutique-productcatalogservice:3550"
+  currency: "boutique-currencyservice:7000"
+  cart: "boutique-cartservice:7070"
+  recommendation: "boutique-recommendationservice:8080"
+  shipping: "boutique-shippingservice:50051"
+  checkout: "boutique-checkoutservice:5050"
+  ad: "boutique-adservice:9555"
+  shoppingAssistant: "boutique-shoppingassistantservice:80"
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 64Mi
+  limits:
+    cpu: 200m
+    memory: 128Mi
+

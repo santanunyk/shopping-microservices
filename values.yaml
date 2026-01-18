@@ -1,0 +1,16 @@
+global:
+  imageRegistry: "us-central1-docker.pkg.dev/google-samples/microservices-demo"
+
+adservice: {}
+cartservice: {}
+checkoutservice: {}
+currencyservice: {}
+emailservice: {}
+frontend: {}
+loadgenerator: {}
+paymentservice: {}
+productcatalogservice: {}
+recommendationservice: {}
+redis-cart: {}
+shippingservice: {}
+

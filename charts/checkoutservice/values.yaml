@@ -1,0 +1,27 @@
+replicaCount: 1
+
+image:
+  repository: checkoutservice
+  tag: v0.10.4
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 5050
+
+env:
+  productCatalog: "productcatalogservice:3550"
+  shipping: "shippingservice:50051"
+  payment: "paymentservice:50051"
+  email: "emailservice:5000"
+  currency: "currencyservice:7000"
+  cart: "cartservice:7070"
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 64Mi
+  limits:
+    cpu: 200m
+    memory: 128Mi
+

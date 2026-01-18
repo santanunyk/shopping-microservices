@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "redis-cart.fullname" . }}
+  labels:
+    app: {{ include "redis-cart.name" . }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ include "redis-cart.name" . }}
+  template:
+    metadata:
+      labels:
+        app: {{ include "redis-cart.name" . }}
+    spec:
+      securityContext:
+        fsGroup: 1000
+        runAsGroup: 1000
+        runAsUser: 1000
+        runAsNonRoot: true
+      containers:
+      - name: redis
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        ports:
+        - containerPort: 6379
+        readinessProbe:
+          tcpSocket:
+            port: 6379
+          periodSeconds: 5
+        livenessProbe:
+          tcpSocket:
+            port: 6379
+          periodSeconds: 5
+        volumeMounts:
+        - name: redis-data
+          mountPath: /data
+        resources:
+{{ toYaml .Values.resources | indent 10 }}
+      volumes:
+      - name: redis-data
+        emptyDir: {}
+

@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "checkoutservice.fullname" . }}
+  labels:
+    app: {{ include "checkoutservice.name" . }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ include "checkoutservice.name" . }}
+  template:
+    metadata:
+      labels:
+        app: {{ include "checkoutservice.name" . }}
+    spec:
+      serviceAccountName: {{ include "checkoutservice.name" . }}
+      terminationGracePeriodSeconds: 5
+      securityContext:
+        fsGroup: 1000
+        runAsUser: 1000
+        runAsGroup: 1000
+        runAsNonRoot: true
+      containers:
+      - name: checkoutservice
+        image: "{{ .Values.global.imageRegistry }}/{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        ports:
+        - name: grpc
+          containerPort: {{ .Values.service.port }}
+        env:
+        - name: PORT
+          value: "{{ .Values.service.port }}"
+        - name: PRODUCT_CATALOG_SERVICE_ADDR
+          value: "{{ .Values.env.productCatalog }}"
+        - name: SHIPPING_SERVICE_ADDR
+          value: "{{ .Values.env.shipping }}"
+        - name: PAYMENT_SERVICE_ADDR
+          value: "{{ .Values.env.payment }}"
+        - name: EMAIL_SERVICE_ADDR
+          value: "{{ .Values.env.email }}"
+        - name: CURRENCY_SERVICE_ADDR
+          value: "{{ .Values.env.currency }}"
+        - name: CART_SERVICE_ADDR
+          value: "{{ .Values.env.cart }}"
+        readinessProbe:
+          grpc:
+            port: {{ .Values.service.port }}
+        livenessProbe:
+          grpc:
+            port: {{ .Values.service.port }}
+        resources:
+{{ toYaml .Values.resources | indent 10 }}
+

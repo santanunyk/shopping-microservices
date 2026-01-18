@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "adservice.fullname" . }}
+  labels:
+    app: {{ include "adservice.name" . }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ include "adservice.name" . }}
+  template:
+    metadata:
+      labels:
+        app: {{ include "adservice.name" . }}
+    spec:
+      serviceAccountName: {{ include "adservice.name" . }}
+      securityContext:
+        fsGroup: 1000
+        runAsUser: 1000
+        runAsGroup: 1000
+        runAsNonRoot: true
+      containers:
+      - name: adservice
+        image: "{{ .Values.global.imageRegistry }}/{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        ports:
+        - name: grpc
+          containerPort: {{ .Values.service.port }}
+        readinessProbe:
+          grpc:
+            port: {{ .Values.service.port }}
+        livenessProbe:
+          grpc:
+            port: {{ .Values.service.port }}
+        resources:
+{{ toYaml .Values.resources | indent 10 }}
+

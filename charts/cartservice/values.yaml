@@ -1,0 +1,22 @@
+replicaCount: 1
+
+image:
+  repository: cartservice
+  tag: v0.10.4
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 7070
+
+env:
+  redisAddress: "boutique-redis-cart:6379"
+
+resources:
+  requests:
+    cpu: 200m
+    memory: 64Mi
+  limits:
+    cpu: 300m
+    memory: 128Mi
+

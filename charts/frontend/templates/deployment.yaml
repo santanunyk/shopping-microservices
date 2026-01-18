@@ -1,0 +1,68 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "frontend.fullname" . }}
+  labels:
+    app: {{ include "frontend.name" . }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ include "frontend.name" . }}
+  template:
+    metadata:
+      labels:
+        app: {{ include "frontend.name" . }}
+      annotations:
+        sidecar.istio.io/rewriteAppHTTPProbers: "true"
+    spec:
+      serviceAccountName: {{ include "frontend.name" . }}
+      securityContext:
+        fsGroup: 1000
+        runAsUser: 1000
+        runAsGroup: 1000
+        runAsNonRoot: true
+      containers:
+      - name: frontend
+        image: "{{ .Values.global.imageRegistry }}/{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        ports:
+        - containerPort: {{ .Values.service.targetPort }}
+        env:
+        - name: PORT
+          value: "{{ .Values.service.targetPort }}"
+        - name: PRODUCT_CATALOG_SERVICE_ADDR
+          value: "{{ .Values.env.productCatalog }}"
+        - name: CURRENCY_SERVICE_ADDR
+          value: "{{ .Values.env.currency }}"
+        - name: CART_SERVICE_ADDR
+          value: "{{ .Values.env.cart }}"
+        - name: RECOMMENDATION_SERVICE_ADDR
+          value: "{{ .Values.env.recommendation }}"
+        - name: SHIPPING_SERVICE_ADDR
+          value: "{{ .Values.env.shipping }}"
+        - name: CHECKOUT_SERVICE_ADDR
+          value: "{{ .Values.env.checkout }}"
+        - name: AD_SERVICE_ADDR
+          value: "{{ .Values.env.ad }}"
+        - name: SHOPPING_ASSISTANT_SERVICE_ADDR
+          value: "{{ .Values.env.shoppingAssistant }}"
+        readinessProbe:
+          httpGet:
+            path: "/_healthz"
+            port: {{ .Values.service.targetPort }}
+            httpHeaders:
+            - name: "Cookie"
+              value: "shop_session-id=x-readiness-probe"
+          initialDelaySeconds: 10
+        livenessProbe:
+          httpGet:
+            path: "/_healthz"
+            port: {{ .Values.service.targetPort }}
+            httpHeaders:
+            - name: "Cookie"
+              value: "shop_session-id=x-liveness-probe"
+          initialDelaySeconds: 10
+        resources:
+{{ toYaml .Values.resources | indent 10 }}
+

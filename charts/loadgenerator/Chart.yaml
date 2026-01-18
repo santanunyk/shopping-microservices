@@ -1,0 +1,7 @@
+apiVersion: v2
+name: loadgenerator
+description: Load generator for microservices demo
+type: application
+version: 1.0.0
+appVersion: "v0.10.4"
+

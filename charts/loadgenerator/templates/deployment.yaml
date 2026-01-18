@@ -1,0 +1,72 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "loadgenerator.fullname" . }}
+  labels:
+    app: {{ include "loadgenerator.name" . }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ include "loadgenerator.name" . }}
+  template:
+    metadata:
+      labels:
+        app: {{ include "loadgenerator.name" . }}
+      annotations:
+        sidecar.istio.io/rewriteAppHTTPProbers: "true"
+    spec:
+      serviceAccountName: {{ include "loadgenerator.name" . }}
+      terminationGracePeriodSeconds: 5
+      securityContext:
+        fsGroup: 1000
+        runAsGroup: 1000
+        runAsNonRoot: true
+        runAsUser: 1000
+
+      initContainers:
+      - name: frontend-check
+        image: "{{ .Values.busyboxImage }}"
+        imagePullPolicy: Always
+        command:
+        - /bin/sh
+        - -exc
+        - |
+          MAX_RETRIES=12
+          RETRY_INTERVAL=10
+          for i in $(seq 1 $MAX_RETRIES); do
+            echo "Attempt $i: Checking frontend: {{ .Values.env.frontend }}..."
+            STATUS=$(wget --server-response http://{{ .Values.env.frontend }} 2>&1 | awk '/^  HTTP/{print $2}')
+            if [ "$STATUS" = "200" ]; then
+              echo "Frontend OK"
+              exit 0
+            fi
+            echo "Waiting..."
+            sleep $RETRY_INTERVAL
+          done
+          echo "Frontend unreachable."
+          exit 1
+
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop: [ "ALL" ]
+          readOnlyRootFilesystem: true
+        env:
+        - name: FRONTEND_ADDR
+          value: "{{ .Values.env.frontend }}"
+
+      containers:
+      - name: loadgenerator
+        image: "{{ .Values.global.imageRegistry }}/{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        env:
+        - name: FRONTEND_ADDR
+          value: "{{ .Values.env.frontend }}"
+        - name: USERS
+          value: "{{ .Values.env.users }}"
+        - name: RATE
+          value: "{{ .Values.env.rate }}"
+        resources:
+{{ toYaml .Values.resources | indent 10 }}
+

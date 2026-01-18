@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "currencyservice.fullname" . }}
+  labels:
+    app: {{ include "currencyservice.name" . }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ include "currencyservice.name" . }}
+  template:
+    metadata:
+      labels:
+        app: {{ include "currencyservice.name" . }}
+    spec:
+      serviceAccountName: {{ include "currencyservice.name" . }}
+      terminationGracePeriodSeconds: 5
+      securityContext:
+        fsGroup: 1000
+        runAsGroup: 1000
+        runAsNonRoot: true
+        runAsUser: 1000
+      containers:
+      - name: currencyservice
+        image: "{{ .Values.global.imageRegistry }}/{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        ports:
+        - name: grpc
+          containerPort: {{ .Values.service.port }}
+        env:
+        - name: PORT
+          value: "{{ .Values.service.port }}"
+        - name: DISABLE_PROFILER
+          value: "1"
+        readinessProbe:
+          grpc:
+            port: {{ .Values.service.port }}
+        livenessProbe:
+          grpc:
+            port: {{ .Values.service.port }}
+        resources:
+{{ toYaml .Values.resources | indent 10 }}
+

@@ -1,0 +1,19 @@
+replicaCount: 1
+
+image:
+  repository: paymentservice
+  tag: v0.10.4
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 50051
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 64Mi
+  limits:
+    cpu: 200m
+    memory: 128Mi
+

@@ -1,0 +1,7 @@
+apiVersion: v2
+name: redis-cart
+description: Redis storage for cart service
+type: application
+version: 1.0.0
+appVersion: "alpine"
+

@@ -1,0 +1,22 @@
+replicaCount: 1
+
+image:
+  repository: recommendationservice
+  tag: v0.10.4
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 8080
+
+env:
+  productCatalog: "productcatalogservice:3550"
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 220Mi
+  limits:
+    cpu: 200m
+    memory: 450Mi
+

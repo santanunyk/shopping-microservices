@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "cartservice.fullname" . }}
+  labels:
+    app: {{ include "cartservice.name" . }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ include "cartservice.name" . }}
+  template:
+    metadata:
+      labels:
+        app: {{ include "cartservice.name" . }}
+    spec:
+      serviceAccountName: {{ include "cartservice.name" . }}
+      terminationGracePeriodSeconds: 5
+      securityContext:
+        fsGroup: 1000
+        runAsUser: 1000
+        runAsGroup: 1000
+        runAsNonRoot: true
+      containers:
+      - name: cartservice
+        image: "{{ .Values.global.imageRegistry }}/{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        ports:
+        - name: grpc
+          containerPort: {{ .Values.service.port }}
+        env:
+        - name: REDIS_ADDR
+          value: "{{ .Values.env.redisAddress }}"
+        readinessProbe:
+          grpc:
+            port: {{ .Values.service.port }}
+          initialDelaySeconds: 15
+        livenessProbe:
+          grpc:
+            port: {{ .Values.service.port }}
+          initialDelaySeconds: 15
+          periodSeconds: 10
+        resources:
+{{ toYaml .Values.resources | indent 10 }}
+

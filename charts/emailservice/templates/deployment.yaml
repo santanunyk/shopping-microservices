@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "emailservice.fullname" . }}
+  labels:
+    app: {{ include "emailservice.name" . }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ include "emailservice.name" . }}
+  template:
+    metadata:
+      labels:
+        app: {{ include "emailservice.name" . }}
+    spec:
+      serviceAccountName: {{ include "emailservice.name" . }}
+      terminationGracePeriodSeconds: 5
+      securityContext:
+        fsGroup: 1000
+        runAsGroup: 1000
+        runAsNonRoot: true
+        runAsUser: 1000
+      containers:
+      - name: emailservice
+        image: "{{ .Values.global.imageRegistry }}/{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        ports:
+        - name: grpc
+          containerPort: 8080
+        env:
+        - name: PORT
+          value: "8080"
+        - name: DISABLE_PROFILER
+          value: "1"
+        readinessProbe:
+          grpc:
+            port: 8080
+        livenessProbe:
+          grpc:
+            port: 8080
+        resources:
+{{ toYaml .Values.resources | indent 10 }}
+

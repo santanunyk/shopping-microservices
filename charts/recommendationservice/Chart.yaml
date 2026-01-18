@@ -1,0 +1,7 @@
+apiVersion: v2
+name: recommendationservice
+description: Recommendation microservice
+type: application
+version: 1.0.0
+appVersion: "v0.10.4"
+
